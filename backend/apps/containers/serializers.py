@@ -34,7 +34,10 @@ class ContainerSerializer(serializers.ModelSerializer):
 class ContainerCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Container
-        fields = ['seller', 'deposit_amount', 'condition', 'notes']
+        fields = ['deposit_amount', 'condition', 'notes']
 
     def create(self, validated_data):
-        return Container.objects.create(**validated_data)
+        request = self.context.get('request')
+        if request and hasattr(request.user, 'seller_profile'):
+            validated_data['seller'] = request.user.seller_profile
+        return super().create(validated_data)

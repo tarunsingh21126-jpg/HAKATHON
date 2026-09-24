@@ -27,6 +27,26 @@ export default function CustomerDashboard() {
     fetchData();
   }, []);
 
+  const handleReturn = async (containerId) => {
+    try {
+      await api.post('/returns/', {
+        container: containerId,
+        method: 'dropoff' // default method
+      });
+      // Refresh data
+      const [containersRes, rewardsRes] = await Promise.all([
+        api.get('/containers/'),
+        api.get('/rewards/')
+      ]);
+      setContainers(containersRes.data.results || containersRes.data);
+      setRewards(rewardsRes.data);
+      alert('Return requested successfully!');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to request return');
+    }
+  };
+
   if (loading) return <div className="p-8 text-center">Loading...</div>;
 
   const activeContainers = containers.filter(c => ['assigned', 'delivered'].includes(c.status));
@@ -60,7 +80,9 @@ export default function CustomerDashboard() {
                     </span>
                   </div>
                   <p className="text-sm text-slate-500 mb-4">Deposit: ₹{container.deposit_amount}</p>
-                  <button className="w-full bg-brand-600 text-white font-medium py-2 rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2">
+                  <button 
+                    onClick={() => handleReturn(container.id)}
+                    className="w-full bg-brand-600 text-white font-medium py-2 rounded-lg hover:bg-brand-700 transition-colors flex items-center justify-center gap-2">
                     <RotateCcw className="w-4 h-4" /> Return Packaging
                   </button>
                 </div>

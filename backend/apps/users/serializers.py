@@ -35,6 +35,7 @@ class UserSerializer(serializers.ModelSerializer):
     def get_seller_profile(self, obj):
         if obj.role == 'seller' and hasattr(obj, 'seller_profile'):
             return {
+                'id': obj.seller_profile.id,
                 'business_name': obj.seller_profile.business_name,
                 'business_address': obj.seller_profile.business_address,
                 'status': obj.seller_profile.status,

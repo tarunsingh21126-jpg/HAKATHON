@@ -16,7 +16,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'container', 'container_code', 'customer_address', 'delivery_status',
             'notes', 'created_at', 'delivered_at',
         ]
-        read_only_fields = ['order_number', 'created_at']
+        read_only_fields = ['order_number', 'created_at', 'seller']
 
     def get_seller_name(self, obj):
         return obj.seller.business_name if obj.seller else None
@@ -28,6 +28,9 @@ class OrderSerializer(serializers.ModelSerializer):
         return obj.container.container_code if obj.container else None
 
     def create(self, validated_data):
+        request = self.context.get('request')
+        if request and hasattr(request.user, 'seller_profile'):
+            validated_data['seller'] = request.user.seller_profile
         order = Order.objects.create(**validated_data)
         # Assign container to customer and create deposit
         if order.container:

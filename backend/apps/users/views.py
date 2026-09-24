@@ -43,7 +43,7 @@ def profile_view(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def list_users(request):
-    if request.user.role != 'admin':
+    if request.user.role not in ['admin', 'seller']:
         return Response({'error': 'Forbidden'}, status=403)
     users = User.objects.all()
     return Response(UserSerializer(users, many=True).data)
